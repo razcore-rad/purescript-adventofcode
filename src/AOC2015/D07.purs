@@ -7,27 +7,33 @@ import Data.Function.Memoize (memoize)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Int (fromString)
-import Data.Int.Bits (complement, shl, shr, (.&.), (.|.))
+import Data.Int.Bits (shl, shr, (.&.), (.|.))
 import Data.Map (Map)
 import Data.Map as M
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), maybe)
 import Data.String (Pattern(..), split, trim)
 import Data.Traversable (sequence)
 import Data.Tuple (Tuple(..))
 
 
-data Wire
-  = Constant Int
-  | Link String
-  | And String String
-  | Or String String
-  | Not String
-  | LShift String Int
-  | RShift String Int
+data Input = Constant Int | Link String
 
-derive instance genericWire :: Generic Wire _
+derive instance genericInput :: Generic Input _
 
-instance showWire :: Show Wire where
+instance shwoInput :: Show Input where
+  show = genericShow
+
+data Gate
+  = Wire Input
+  | And Input Input
+  | Or Input Input
+  | Not Input
+  | LShift Input Int
+  | RShift Input Int
+
+derive instance genericWire :: Generic Gate _
+
+instance showGate :: Show Gate where
   show = genericShow
 
 
@@ -374,37 +380,42 @@ NOT hn -> ho
 he RSHIFT 5 -> hh
 """
 
-input' :: Map String Wire
+input' :: Map String Gate
 input' = M.fromFoldable <<< catMaybes $ sequence <$> catMaybes do
   arr <- map trim <<< split (Pattern "->") <$> (split (Pattern "\n") $ trim input)
   pure case arr of
             [expr, key] -> Just (Tuple key $ wireExpr expr)
             _           -> Nothing
-  where wireExpr :: String -> Maybe Wire
+  where parseInput :: String -> Input
+        parseInput s = maybe (Link s) (Constant) $ fromString s
+
+        wireExpr :: String -> Maybe Gate
         wireExpr s = case split (Pattern " ") s of
-                          [a,     "AND",    b] -> Just $ And (trim a) (trim b)
-                          [a,     "OR",     b] -> Just $ Or  (trim a) (trim b)
-                          [a,     "LSHIFT", b] -> LShift (trim a) <$> fromString b
-                          [a,     "RSHIFT", b] -> RShift (trim a) <$> fromString b
-                          ["NOT", a          ] -> Just $ Not (trim a)
+                          [a,     "AND",    b] -> Just $ And (parseInput a) (parseInput b)
+                          [a,     "OR",     b] -> Just $ Or  (parseInput a) (parseInput b)
+                          [a,     "LSHIFT", b] -> LShift (parseInput a) <$> fromString b
+                          [a,     "RSHIFT", b] -> RShift (parseInput a) <$> fromString b
+                          ["NOT", a          ] -> Just $ Not (parseInput a)
                           [a                 ] -> case fromString a of
-                                                       Just i  -> Just $ Constant i
-                                                       Nothing -> Just $ Link a
+                                                       Just i  -> Just $ Wire $ Constant i
+                                                       Nothing -> Just $ Wire $ Link a
                           _                    -> Nothing
 
-eval :: Map String Wire -> String -> Int
-eval m k = case memoize (flip M.lookup m) k of
-              Just (Constant i  ) -> i
-              Just (Link     a  ) -> eval m a
-              Just (And      a b) -> eval m a .&. eval m b
-              Just (Or       a b) -> eval m a .|. eval m b
-              Just (Not      a  ) -> complement $ eval m a
-              Just (LShift   a i) -> shl (eval m a) i
-              Just (RShift   a i) -> shr (eval m a) i
-              Nothing             -> 0
+eval :: String -> Int
+eval = memoize \k -> case M.lookup k input' of
+                          Just (Wire   a  ) -> valueI a
+                          Just (And    a b) -> valueI a .&. valueI b
+                          Just (Or     a b) -> valueI a .|. valueI b
+                          Just (Not    a  ) -> word16Max - valueI a
+                          Just (LShift a i) -> valueI a `shl` i
+                          Just (RShift a i) -> valueI a `shr` i
+                          Nothing           -> 0
+  where word16Max = 65535
+        valueI (Constant x) = x
+        valueI (Link     a) = eval a
 
 part1 :: Int
-part1 = memoize (eval input') "a"
+part1 = eval "a"
 
 
 part2 :: String
