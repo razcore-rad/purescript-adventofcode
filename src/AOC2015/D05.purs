@@ -1,4 +1,4 @@
-module D05 (part1, part2) where
+module AOC2015.D05 (part1, part2) where
 
 import Prelude
 
