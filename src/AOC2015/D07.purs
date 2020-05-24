@@ -401,22 +401,27 @@ input' = M.fromFoldable <<< catMaybes $ sequence <$> catMaybes do
                                                        Nothing -> Just $ Wire $ Link a
                           _                    -> Nothing
 
-eval :: String -> Int
-eval = memoize \k -> case M.lookup k input' of
-                          Just (Wire   a  ) -> valueI a
-                          Just (And    a b) -> valueI a .&. valueI b
-                          Just (Or     a b) -> valueI a .|. valueI b
-                          Just (Not    a  ) -> word16Max - valueI a
-                          Just (LShift a i) -> valueI a `shl` i
-                          Just (RShift a i) -> valueI a `shr` i
-                          Nothing           -> 0
+eval :: Map String Gate -> String -> Int
+eval m s = go s
   where word16Max = 65535
+
+        go :: String -> Int
+        go = memoize \k -> case M.lookup k m of
+                                Just (Wire   a  ) -> valueI a
+                                Just (And    a b) -> valueI a .&. valueI b
+                                Just (Or     a b) -> valueI a .|. valueI b
+                                Just (Not    a  ) -> word16Max - valueI a
+                                Just (LShift a i) -> valueI a `shl` i
+                                Just (RShift a i) -> valueI a `shr` i
+                                Nothing           -> 0
+
+        valueI :: Input -> Int
         valueI (Constant x) = x
-        valueI (Link     a) = eval a
+        valueI (Link     a) = go a
 
 part1 :: Int
-part1 = eval "a"
+part1 = eval input' "a"
 
 
-part2 :: String
-part2 = "TODO"
+part2 :: Int
+part2 = eval (M.update (\_ -> Just <<< Wire <<< Constant $ part1) "b" input') "a"
