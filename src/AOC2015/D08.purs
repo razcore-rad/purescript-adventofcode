@@ -327,28 +327,23 @@ code = sum $ length <$> input'
 any :: Parser String Int
 any = anyChar *> pure 1
 
+escaped :: String -> Int -> Parser String Int
+escaped s r = string s *> pure r
+
+escapedChar :: Parser String Int
+escapedChar = string """\x""" *> hexDigit *> hexDigit *> pure 1
+
+str :: (Int -> Int) -> Parser String (Array Int) -> Int
+str op parser = sum <<< map op $ catMaybes $ hush <$> map sum <$> flip runParser parser <$> input'
+
 part1 :: Int
-part1 = code - str
-  where escaped :: String -> Parser String Int
-        escaped s = string s *> pure 1
-
-        escapedChar :: Parser String Int
-        escapedChar = string """\x""" *> hexDigit *> hexDigit *> pure 1
-
-        parser :: Parser String (Array Int)
-        parser = many $ try escapedChar <|> try (escaped "\\\"") <|> try (escaped "\\\\") <|> any
-
-        str :: Int
-        str = sum <<< map (_ - 2) $ catMaybes $ hush <$> map sum <$> flip runParser parser <$> input'
+part1 = code - str (_ - 2) parser
+  where parser :: Parser String (Array Int)
+        parser = many $ try escapedChar <|> try (escaped "\\\"" 1) <|> try (escaped "\\\\" 1) <|> any
 
 
 part2 :: Int
-part2 = str - code
-  where escaped :: String -> Parser String Int
-        escaped s = string s *> pure 2
+part2 = str (_ + 2) parser - code
+  where parser :: Parser String (Array Int)
+        parser = many $ try (escaped "\"" 2) <|> try (escaped "\\" 2) <|> any
 
-        parser :: Parser String (Array Int)
-        parser = many $ try (escaped "\"") <|> try (escaped "\\") <|> any
-
-        str :: Int
-        str = sum <<< map (_ + 2) $ catMaybes $ hush <$> map sum <$> flip runParser parser <$> input'
