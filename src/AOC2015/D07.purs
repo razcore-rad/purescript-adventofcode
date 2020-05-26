@@ -419,6 +419,7 @@ eval m s = go s
         valueI (Constant x) = x
         valueI (Link     a) = go a
 
+
 part1 :: Int
 part1 = eval input' "a"
 
