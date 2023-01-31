@@ -7,10 +7,10 @@ import Data.Array (catMaybes, many)
 import Data.Either (hush)
 import Data.Foldable (sum)
 import Data.String (Pattern(..), length, split, trim)
-import Text.Parsing.Parser (Parser, runParser)
-import Text.Parsing.Parser.Combinators (try)
-import Text.Parsing.Parser.String (anyChar, string)
-import Text.Parsing.Parser.Token (hexDigit)
+import Parsing (Parser, runParser)
+import Parsing.Combinators (try)
+import Parsing.String (anyChar, string)
+import Parsing.Token (hexDigit)
 
 
 input :: String

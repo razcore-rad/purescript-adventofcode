@@ -4,22 +4,23 @@ You can edit this file as you like.
 -}
 { name = "my-project"
 , dependencies =
-  [ "console"
+  [ "arrays"
+  , "console"
+  , "control"
   , "crypto"
-  , "debug"
   , "effect"
-  , "fixed-points"
-  , "free"
-  , "generics-rep"
+  , "either"
+  , "foldable-traversable"
   , "integers"
-  , "memoize"
-  , "node-readline"
+  , "lists"
+  , "maybe"
+  , "node-buffer"
+  , "open-memoize"
   , "ordered-collections"
   , "parsing"
-  , "psci-support"
-  , "run"
+  , "prelude"
   , "strings"
-  , "undefined"
+  , "tuples"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]

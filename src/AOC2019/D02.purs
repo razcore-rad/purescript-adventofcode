@@ -2,7 +2,7 @@ module AOC2019.D02 (part1, part2) where
 
 import Prelude
 
-import Control.MonadZero (guard)
+import Control.Alternative (guard)
 import Data.Array (catMaybes, length, updateAt, (!!), (..))
 import Data.Foldable (or)
 import Data.Int (fromString)

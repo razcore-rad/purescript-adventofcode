@@ -4,7 +4,9 @@ import Prelude
 
 import Data.String.CodeUnits (countPrefix)
 import Effect (Effect)
-import Node.Crypto.Hash (Algorithm(..), hex)
+import Node.Crypto.Hash (createHash, update, digest)
+import Node.Buffer (fromString, toString)
+import Node.Encoding (Encoding(..))
 
 
 input :: String
@@ -13,7 +15,9 @@ input = "ckczppom"
 
 solveZeros :: Int -> Int -> String -> Effect Int
 solveZeros i n s = do
-  hash <- hex MD5 $ s <> show i
+  buf <- fromString (show i) UTF8
+  hash <- createHash "md5" >>= update buf >>= digest >>= toString Hex
+  -- hash <- hex MD5 $ s <> show i
   if countPrefix ('0' == _) hash == n
     then pure i
     else solveZeros (i + 1) n s

@@ -2,7 +2,7 @@ module AOC2015.D03 (part1, part2) where
 
 import Prelude
 
-import Control.MonadZero (guard)
+import Control.Alternative (guard)
 import Data.Array (catMaybes, length, range, (!!))
 import Data.Foldable (foldl)
 import Data.Int (even, odd)

@@ -7,17 +7,17 @@ import Data.Array (concat, many, (..))
 import Data.Either (either)
 import Data.Foldable (foldl, sum)
 import Data.Generic.Rep (class Generic)
-import Data.Generic.Rep.Show (genericShow)
+import Data.Show.Generic (genericShow)
 import Data.List (List(..), (:))
 import Data.Map as M
 import Data.Maybe (fromMaybe)
 import Data.Set as S
 import Data.String (trim)
 import Data.Tuple (Tuple(..), fst, snd)
-import Text.Parsing.Parser (Parser, runParser)
-import Text.Parsing.Parser.Combinators (try)
-import Text.Parsing.Parser.Language (emptyDef)
-import Text.Parsing.Parser.Token (GenLanguageDef(..), TokenParser, makeTokenParser, unGenLanguageDef)
+import Parsing (Parser, runParser)
+import Parsing.Combinators (try)
+import Parsing.Language (emptyDef)
+import Parsing.Token (GenLanguageDef(..), TokenParser, makeTokenParser, unGenLanguageDef)
 
 
 input :: String
