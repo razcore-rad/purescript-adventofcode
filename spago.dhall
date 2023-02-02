@@ -21,6 +21,7 @@ You can edit this file as you like.
   , "prelude"
   , "strings"
   , "tuples"
+  , "unordered-collections"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]

@@ -21,9 +21,6 @@ instructionToInt c =
        '(' ->  1
        _   ->  0
 
-basement :: Int
-basement = -1
-
 input' :: Array Int
 input' = convertInput input
 
