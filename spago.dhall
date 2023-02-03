@@ -10,6 +10,7 @@ You can edit this file as you like.
   , "crypto"
   , "effect"
   , "either"
+  , "enums"
   , "foldable-traversable"
   , "integers"
   , "lists"
