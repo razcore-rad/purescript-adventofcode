@@ -7,8 +7,6 @@ import Data.Array.NonEmpty as NEA
 import Data.Foldable (fold)
 import Data.Int (decimal, toStringAs)
 import Data.String.CodeUnits as S
-import Effect (Effect)
-import Effect.Class.Console (logShow)
 
 input :: String
 input = "3113322113"
@@ -20,8 +18,8 @@ runLookSay :: Int -> String -> String
 runLookSay n s | n <= 0 = s
 runLookSay n s = runLookSay (n - 1) $ lookSay s
 
-part1 :: Effect Unit
-part1 = logShow $ S.length $ runLookSay 40 input
+part1 :: String -> Int
+part1 = S.length <<< runLookSay 40
 
-part2 :: Effect Unit
-part2 = logShow $ S.length $ runLookSay 50 input
+part2 :: String -> Int
+part2 = S.length <<< runLookSay 50

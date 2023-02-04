@@ -21,8 +21,8 @@ import Parsing.String (string)
 import Parsing.String.Basic (digit, letter, skipSpaces, upper)
 
 
-input :: String
-input = """
+input' :: String
+input' = """
 Faerun to Norrath = 129
 Faerun to Tristram = 58
 Faerun to AlphaCentauri = 13
@@ -82,11 +82,11 @@ line = do
 lines :: Parser String (Array (Tuple (Tuple String String) Int))
 lines = A.many line
 
-input' :: HashMap (Tuple String String) Int
-input' = either (const HM.empty) HM.fromArray $ runParser input lines
+input :: HashMap (Tuple String String) Int
+input = either (const HM.empty) HM.fromArray $ runParser input' lines
 
 distance :: String -> String -> Maybe Int
-distance k1 k2 = HM.lookup (Tuple k1 k2) input' <|> HM.lookup (Tuple k2 k1) input'
+distance k1 k2 = HM.lookup (Tuple k1 k2) input <|> HM.lookup (Tuple k2 k1) input
 
 length :: Array String -> Maybe Int
 length tour = do
@@ -103,7 +103,7 @@ permutations n = do
   maybe [] pure (A.insertAt i n p)
 
 cities :: Array String
-cities = A.nub <<< A.concat $ HM.toArrayBy (\(Tuple k1 k2) _ -> [k1, k2]) input'
+cities = A.nub <<< A.concat $ HM.toArrayBy (\(Tuple k1 k2) _ -> [k1, k2]) input
 
 tours :: Array (Array String)
 tours = do
@@ -114,8 +114,8 @@ distances :: Array Int
 distances = A.catMaybes $ length <$> tours
 
 
-part1 :: Effect Unit
-part1 = logShow $ minimum distances
+part1 :: Maybe Int
+part1 = minimum distances
 
-part2 :: Effect Unit
-part2 = logShow $ maximum distances
+part2 :: Maybe Int
+part2 = maximum distances

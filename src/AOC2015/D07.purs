@@ -37,8 +37,8 @@ instance showGate :: Show Gate where
   show = genericShow
 
 
-input :: String
-input = """
+input' :: String
+input' = """
 lf AND lq -> ls
 iu RSHIFT 1 -> jn
 bo OR bu -> bv
@@ -380,9 +380,9 @@ NOT hn -> ho
 he RSHIFT 5 -> hh
 """
 
-input' :: Map String Gate
-input' = M.fromFoldable <<< catMaybes $ sequence <$> catMaybes do
-  arr <- map trim <<< split (Pattern "->") <$> (split (Pattern "\n") $ trim input)
+input :: Map String Gate
+input = M.fromFoldable <<< catMaybes $ sequence <$> catMaybes do
+  arr <- map trim <<< split (Pattern "->") <$> (split (Pattern "\n") $ trim input')
   pure case arr of
             [expr, key] -> Just (Tuple key $ wireExpr expr)
             _           -> Nothing
@@ -401,8 +401,8 @@ input' = M.fromFoldable <<< catMaybes $ sequence <$> catMaybes do
                                                        Nothing -> Just $ Wire $ Link a
                           _                    -> Nothing
 
-eval :: Map String Gate -> String -> Int
-eval m s = go s
+eval :: String -> Map String Gate -> Int
+eval s m = go s
   where word16Max = 65535
 
         go :: String -> Int
@@ -420,9 +420,9 @@ eval m s = go s
         valueI (Link     a) = go a
 
 
-part1 :: Int
-part1 = eval input' "a"
+part1 :: Map String Gate -> Int
+part1 = eval "a"
 
 
-part2 :: Int
-part2 = eval (M.update (\_ -> Just <<< Wire <<< Constant $ part1) "b" input') "a"
+part2 :: Map String Gate -> Int
+part2 as = eval "a" (M.update (\_ -> Just <<< Wire <<< Constant <<< part1 $ as) "b" as)

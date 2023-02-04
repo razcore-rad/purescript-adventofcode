@@ -6,7 +6,6 @@ import Control.Alternative (guard)
 import Data.Array as A
 import Data.Array.NonEmpty as NEA
 import Data.Enum (fromEnum, toEnumWithDefaults)
-import Data.Foldable (sum)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.String (Pattern(..), length) as S
 import Data.String.CodeUnits (contains, fromCharArray, toCharArray) as S
@@ -64,8 +63,8 @@ hasTwoDifferentPairs s =
   where xs = A.group $ toInts s
 
 
-part1 :: String -> String
-part1 = go <<< incrementPass
+solution :: String -> String
+solution = go <<< incrementPass
   where go s
           | (hasThreeIncrement && hasNoIOL && hasTwoDifferentPairs) s = s
           | otherwise = go $ incrementPass s

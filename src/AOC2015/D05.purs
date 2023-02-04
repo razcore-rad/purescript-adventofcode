@@ -1,4 +1,4 @@
-module AOC2015.D05 (part1, part2) where
+module AOC2015.D05 where
 
 import Prelude
 
@@ -9,8 +9,8 @@ import Data.String.Regex (regex, test)
 import Data.String.Regex.Flags (ignoreCase)
 
 
-input :: String
-input = """
+input' :: String
+input' = """
 uxcplgxnkwbdwhrp
 suerykeptdsutidb
 dmrtgdkaimrrwmej
@@ -1013,8 +1013,8 @@ gtjscincktlwwkkf
 wtebigbaythklkbd
 """
 
-input' :: Array String
-input' = split (Pattern "\n") $ trim input
+input :: Array String
+input = split (Pattern "\n") $ trim input'
 
 pFromRegex :: String -> String -> Boolean
 pFromRegex s = either (const false) identity <<< fromRegex s <<< pure
@@ -1031,8 +1031,8 @@ pNotThem :: String -> Boolean
 pNotThem = not pFromRegex """ab|cd|pq|xy"""
 
 
-part1 :: Int
-part1 = length <<< filter (pNotThem && pLetterTwiceInRow && p3OrMoreVowls) $ input'
+part1 :: Array String -> Int
+part1 = length <<< filter (pNotThem && pLetterTwiceInRow && p3OrMoreVowls)
 
 
 pNonOverlappingPairs :: String -> Boolean
@@ -1041,6 +1041,6 @@ pNonOverlappingPairs = pFromRegex """(..).*\1"""
 pOneLetterInBetween :: String -> Boolean
 pOneLetterInBetween = pFromRegex """(.).{1}\1"""
 
-part2 :: Int
-part2 = length <<< filter (pOneLetterInBetween && pNonOverlappingPairs) $ input'
+part2 :: Array String -> Int
+part2 = length <<< filter (pOneLetterInBetween && pNonOverlappingPairs)
 

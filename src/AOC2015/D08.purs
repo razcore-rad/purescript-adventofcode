@@ -13,8 +13,8 @@ import Parsing.String (anyChar, string)
 import Parsing.Token (hexDigit)
 
 
-input :: String
-input = """
+input' :: String
+input' = """
 "azlgxdbljwygyttzkfwuxv"
 "v\xfb\"lgs\"kvjfywmut\x9cr"
 "merxdhj"
@@ -317,12 +317,12 @@ input = """
 "\\zrs\\syur"
 """
 
-input' :: Array String
-input' = split (Pattern "\n") $ trim input
+input :: Array String
+input = split (Pattern "\n") $ trim input'
 
 
 code :: Int
-code = sum $ length <$> input'
+code = sum $ length <$> input
 
 any :: Parser String Int
 any = anyChar *> pure 1
@@ -333,17 +333,17 @@ escaped s r = string s *> pure r
 escapedChar :: Parser String Int
 escapedChar = string """\x""" *> hexDigit *> hexDigit *> pure 1
 
-str :: (Int -> Int) -> Parser String (Array Int) -> Int
-str op parser = sum <<< map op $ catMaybes $ hush <$> map sum <$> flip runParser parser <$> input'
+str :: (Int -> Int) -> Parser String (Array Int) -> Array String -> Int
+str op parser as = sum <<< map op $ catMaybes $ hush <$> map sum <$> flip runParser parser <$> as
 
-part1 :: Int
-part1 = code - str (_ - 2) parser
+part1 :: Array String -> Int
+part1 as = code - str (_ - 2) parser as
   where parser :: Parser String (Array Int)
         parser = many $ try escapedChar <|> try (escaped "\\\"" 1) <|> try (escaped "\\\\" 1) <|> any
 
 
-part2 :: Int
-part2 = str (_ + 2) parser - code
+part2 :: Array String -> Int
+part2 as = str (_ + 2) parser as - code
   where parser :: Parser String (Array Int)
         parser = many $ try (escaped "\"" 2) <|> try (escaped "\\" 2) <|> any
 

@@ -1,4 +1,4 @@
-module AOC2015.D04 (part1, part2) where
+module AOC2015.D04 where
 
 import Prelude
 
@@ -17,18 +17,16 @@ solveZeros :: Int -> Int -> String -> Effect Int
 solveZeros i n s = do
   buf <- fromString (show i) UTF8
   hash <- createHash "md5" >>= update buf >>= digest >>= toString Hex
-  -- hash <- hex MD5 $ s <> show i
   if countPrefix ('0' == _) hash == n
     then pure i
     else solveZeros (i + 1) n s
 
 
-part1 :: Effect Int
-part1 = solveZeros 0 5 input
+part1 :: String -> Effect Int
+part1 = solveZeros 0 5
 
 
-part2 :: Effect Int
-part2 = do
-  part1Result <- part1
-  solveZeros part1Result 6 input
-
+part2 :: String -> Effect Int
+part2 s = do
+  part1Result <- part1 s
+  solveZeros part1Result 6 s

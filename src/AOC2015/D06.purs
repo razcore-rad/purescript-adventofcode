@@ -1,4 +1,4 @@
-module AOC2015.D06 (part1, part2) where
+module AOC2015.D06 where
 
 import Prelude
 
@@ -20,8 +20,8 @@ import Parsing.Language (emptyDef)
 import Parsing.Token (GenLanguageDef(..), TokenParser, makeTokenParser, unGenLanguageDef)
 
 
-input :: String
-input = """
+input' :: String
+input' = """
 toggle 461,550 through 564,900
 turn off 370,39 through 425,839
 turn off 464,858 through 833,915
@@ -392,11 +392,11 @@ parserToggle = do
 parser :: Parser String (Array Instruction)
 parser = many $ (try parserOn <|> parserOff <|> parserToggle) <* tokenParser.whiteSpace
 
-input' :: Array Instruction
-input' = either (const []) identity $ runParser (trim input) parser
+input :: Array Instruction
+input = either (const []) identity $ runParser (trim input') parser
 
 
-part1 :: Int
+part1 :: Array Instruction -> Int
 part1
   =   S.size
   <<< foldl applyInstruction S.empty
@@ -405,8 +405,6 @@ part1
              On     t1 t2 -> expand t1 t2 S.insert
              Off    t1 t2 -> expand t1 t2 S.delete
              Toggle t1 t2 -> expand t1 t2 (\k s -> (if k `S.member` s then S.delete else S.insert) k s)
-
-  $   input'
   where applyInstruction s (Tuple k f) = f k s
         expand t1 t2 f = do
            x <- fst t1 .. fst t2
@@ -414,7 +412,7 @@ part1
            pure $ Tuple (Tuple x y) f
 
 
-part2 :: Int
+part2 :: Array Instruction -> Int
 part2
   =   sum
   <<< foldl applyInstruction M.empty
@@ -423,7 +421,6 @@ part2
                On     t1 t2 -> expand t1 t2    1
                Off    t1 t2 -> expand t1 t2 $ -1
                Toggle t1 t2 -> expand t1 t2    2
-  $   input'
   where applyInstruction m (Tuple k v) = M.alter (pure <<< max 0 <<< (v + _) <<< fromMaybe 0) k m
         expand t1 t2 v = do
            x <- fst t1 .. fst t2

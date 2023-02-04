@@ -1,4 +1,4 @@
-module AOC2019.D01 (part1, part2) where
+module AOC2019.D01 where
 
 import Prelude
 
@@ -8,8 +8,8 @@ import Data.Int (fromString)
 import Data.String (split, Pattern(..), trim)
 
 
-input :: String
-input = """
+input' :: String
+input' = """
 125050
 115884
 132344
@@ -112,8 +112,8 @@ input = """
 54921
 """
 
-input' :: Array Int
-input' = catMaybes $ fromString <$> split (Pattern "\n") (trim input)
+input :: Array Int
+input = catMaybes $ fromString <$> split (Pattern "\n") (trim input')
 
 
 calculateModuleFuel :: Int -> Int
@@ -122,10 +122,10 @@ calculateModuleFuel m
                  in mf + calculateModuleFuel mf
   | otherwise = 0
 
-part1 :: Int
-part1 = sum $ ((_ - 2) <<< (_ / 3)) <$> input'
+part1 :: Array Int -> Int
+part1 as = sum $ ((_ - 2) <<< (_ / 3)) <$> as
 
 
-part2 :: Int
-part2 = sum $ calculateModuleFuel <$> input'
+part2 :: Array Int -> Int
+part2 as = sum $ calculateModuleFuel <$> as
 

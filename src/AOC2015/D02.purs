@@ -1,4 +1,4 @@
-module AOC2015.D02 (part1, part2) where
+module AOC2015.D02 where
 
 import Prelude
 
@@ -9,9 +9,9 @@ import Data.Maybe (fromMaybe, maybe)
 import Data.String (Pattern(..), split, trim)
 
 
-input :: String
-input = """
-4x23x21
+input' :: String
+input' = """
+4x23x1'
 22x29x19
 11x4x11
 8x10x5
@@ -1032,14 +1032,14 @@ smallestPerimeter :: Array Int -> Int
 smallestPerimeter [l, w, h] = maybe 0 (2 * _) $ minimum [l + w, w + h, h + l]
 smallestPerimeter _         = 0
 
-input' :: Array (Array Int)
-input' = convertInput input
+input :: Array (Array Int)
+input = convertInput input'
 
 
-part1 :: Int
-part1 = sum <<< map (\x -> area x + smallestArea x) $ input'
+part1 :: Array (Array Int) -> Int
+part1 = sum <<< map (\x -> area x + smallestArea x)
 
 
-part2 :: Int
-part2 = sum <<< map (\x -> volume x + smallestPerimeter x) $ input'
+part2 :: Array (Array Int) -> Int
+part2 = sum <<< map (\x -> volume x + smallestPerimeter x)
 
