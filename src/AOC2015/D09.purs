@@ -5,20 +5,19 @@ import Prelude
 import Control.Alt ((<|>))
 import Data.Array ((!!))
 import Data.Array as A
-import Data.Either (either)
+import Data.Either (fromRight)
 import Data.Foldable (maximum, minimum, sum)
 import Data.HashMap (HashMap)
 import Data.HashMap as HM
 import Data.Int as I
-import Data.Maybe (Maybe, fromMaybe, maybe)
+import Data.Maybe (Maybe, fromMaybe)
 import Data.String.CodeUnits (fromCharArray) as S
 import Data.Tuple (Tuple(..), uncurry)
 import Data.Tuple.Nested ((/\))
-import Effect (Effect)
-import Effect.Class.Console (logShow)
 import Parsing (Parser, runParser)
 import Parsing.String (string)
 import Parsing.String.Basic (digit, letter, skipSpaces, upper)
+import Utils (permutations)
 
 
 input' :: String
@@ -83,7 +82,7 @@ lines :: Parser String (Array (Tuple (Tuple String String) Int))
 lines = A.many line
 
 input :: HashMap (Tuple String String) Int
-input = either (const HM.empty) HM.fromArray $ runParser input' lines
+input = fromRight HM.empty $ HM.fromArray <$> runParser input' lines
 
 distance :: String -> String -> Maybe Int
 distance k1 k2 = HM.lookup (Tuple k1 k2) input <|> HM.lookup (Tuple k2 k1) input
@@ -94,21 +93,13 @@ length tour = do
   ts2 <- A.tail tour
   sum $ map (uncurry distance) $ A.zip ts1 ts2
 
-permutations :: Int -> Array (Array Int)
-permutations n | n <= 0 = []
-permutations 1 = [[1]]
-permutations n = do
-  p <- permutations (n - 1)
-  i <- A.range 0 (n - 1)
-  maybe [] pure (A.insertAt i n p)
-
 cities :: Array String
 cities = A.nub <<< A.concat $ HM.toArrayBy (\(Tuple k1 k2) _ -> [k1, k2]) input
 
 tours :: Array (Array String)
 tours = do
   indices <- permutations $ A.length cities
-  pure $ A.catMaybes $ map (\i -> cities !! (i - 1)) indices
+  pure $ A.catMaybes $ (cities !! _) <$> indices
 
 distances :: Array Int
 distances = A.catMaybes $ length <$> tours
