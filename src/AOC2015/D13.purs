@@ -5,7 +5,7 @@ import Prelude
 import Data.Array ((!!))
 import Data.Array as A
 import Data.Either (fromRight)
-import Data.Foldable (maximum, sum)
+import Data.Foldable (foldl, maximum, sum)
 import Data.HashMap (HashMap)
 import Data.HashMap as HM
 import Data.Int (fromString)
@@ -13,12 +13,29 @@ import Data.Maybe (Maybe, maybe)
 import Data.String.CodeUnits as S
 import Data.Tuple (Tuple(..))
 import Data.Tuple.Nested ((/\))
+import Effect (Effect)
+import Effect.Class.Console (logShow)
 import Parsing (Parser, fail, runParser)
 import Parsing.Combinators (choice)
 import Parsing.Combinators.Array (many)
 import Parsing.String (anyTill, char, string)
 import Parsing.String.Basic (digit, lower, skipSpaces, upper)
 import Utils (permutations)
+
+testInput :: String
+testInput = """
+Alice would gain 54 happiness units by sitting next to Bob.
+Alice would lose 79 happiness units by sitting next to Carol.
+Alice would lose 2 happiness units by sitting next to David.
+Bob would gain 83 happiness units by sitting next to Alice.
+Bob would lose 7 happiness units by sitting next to Carol.
+Bob would lose 63 happiness units by sitting next to David.
+Carol would lose 62 happiness units by sitting next to Alice.
+Carol would gain 60 happiness units by sitting next to Bob.
+Carol would gain 55 happiness units by sitting next to David.
+David would gain 46 happiness units by sitting next to Alice.
+David would lose 7 happiness units by sitting next to Bob.
+David would gain 41 happiness units by sitting next to Carol."""
 
 input :: String
 input = """
@@ -109,6 +126,9 @@ toMap s = HM.fromArray $ fromRight [] $ runParser s $ many lineP
 input' :: HashMap (Tuple String String) Int
 input' = toMap input
 
+testInput' :: HashMap (Tuple String String) Int
+testInput' = toMap testInput
+
 getPeople :: HashMap (Tuple String String) Int -> Array String
 getPeople hm = A.nub <<< A.concat $ HM.toArrayBy (\(Tuple p1 p2) _ -> [p1, p2]) hm
 
@@ -129,7 +149,16 @@ getHappiness arrangement hm = sum <<< A.catMaybes <$> do
     k@(p1 /\ p2) <- as
     pure $ HM.lookup k hm + HM.lookup (p2 /\ p1) hm
 
-part1 :: HashMap (Tuple String String) Int -> Maybe Int
-part1 hm = join $ maximum do
+insertSelf :: HashMap (Tuple String String) Int -> HashMap (Tuple String String) Int
+insertSelf hm = foldl (\acc x -> HM.insert (x /\ "Self") 0 $ HM.insert ("Self" /\ x) 0 acc) hm $ getPeople hm
+
+getOptimalHappines :: HashMap (Tuple String String) Int -> Maybe Int
+getOptimalHappines hm = join $ maximum do
   arrangement <- getArrangements hm
   pure $ getHappiness arrangement hm
+
+
+main :: Effect Unit
+main = do
+  logShow $ "Part 1:" <> show (getOptimalHappines input')
+  logShow $ "Part 2:" <> show (getOptimalHappines $ insertSelf input')
