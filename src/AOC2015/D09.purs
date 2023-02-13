@@ -3,7 +3,7 @@ module AOC2015.D09 where
 import Prelude
 
 import Control.Alt ((<|>))
-import Data.Array ((!!))
+import Data.Array (unsafeIndex)
 import Data.Array as A
 import Data.Either (fromRight)
 import Data.Foldable (maximum, minimum, sum)
@@ -17,6 +17,7 @@ import Data.Tuple.Nested ((/\))
 import Parsing (Parser, runParser)
 import Parsing.String (string)
 import Parsing.String.Basic (digit, letter, skipSpaces, upper)
+import Partial.Unsafe (unsafePartial)
 import Utils (permutations)
 
 
@@ -99,11 +100,10 @@ cities = A.nub <<< A.concat $ HM.toArrayBy (\(Tuple k1 k2) _ -> [k1, k2]) input
 tours :: Array (Array String)
 tours = do
   indices <- permutations $ A.length cities
-  pure $ A.catMaybes $ (cities !! _) <$> indices
+  pure $ unsafePartial $ unsafeIndex cities <$> indices
 
 distances :: Array Int
 distances = A.catMaybes $ length <$> tours
-
 
 part1 :: Maybe Int
 part1 = minimum distances
